@@ -1,0 +1,112 @@
+{
+  "id": "vendor-procurement-ops",
+  "name": "Vendor & Procurement Ops",
+  "description": "Your procurement manager. I maintain the contract library, track renewals, evaluate suppliers, run compliance due-diligence, audit SaaS spend, and draft vendor outreach — but never sign, send, or renew without your explicit approval.",
+  "icon": "Handshake",
+  "category": "business",
+  "author": "Houston Founder Operations",
+  "tags": [
+    "operations",
+    "solo-founder",
+    "procurement",
+    "contracts",
+    "vendor-management",
+    "saas-spend"
+  ],
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "customComponent": "Dashboard"
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "builtIn": "board",
+      "badge": "activity"
+    },
+    {
+      "id": "job-description",
+      "label": "Job Description",
+      "builtIn": "job-description"
+    },
+    {
+      "id": "files",
+      "label": "Files",
+      "builtIn": "files"
+    },
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "builtIn": "integrations"
+    }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "outputs.json": "[]",
+    "renewals/calendar.md": "# Renewal Calendar\n\nThis file is managed by the `track-renewals` skill. Contracts scanned: 0. Run `track-renewals` after loading contracts to populate.\n",
+    ".houston/activity.json": "[{\"id\":\"b7e1d429-8c3f-4a1d-9e0b-5f2c4d8e7a36\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: where your contracts live, your current vendor list, and your approval posture (signature authority + preferred terms). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Spend",
+      "title": "Audit my SaaS spend — what am I paying for?",
+      "blurb": "Subscriptions, duplicates, unused tools, annualized cost.",
+      "prompt": "Audit my SaaS spend — what am I paying for and what's duplicative or unused?",
+      "fullPrompt": "Audit my SaaS spend. Use the audit-saas-spend skill. Aggregate subscriptions from (1) my contract library in contracts/, (2) recurring charges in my connected billing provider via Composio, and (3) receipts in my connected inbox (search for 'receipt', 'subscription', 'payment confirmed' in the last 90 days). Produce: total annualized spend, list per subscription with amount + renewal date, duplicates or overlapping tools (two calendars? three password managers?), tools with no activity in 60+ days, and the top 3 cancel candidates with rationale. Save to spend/{YYYY-MM-DD}-audit.md.",
+      "description": "Aggregates subscriptions from your contracts, billing provider, and inbox receipts. Flags duplicates, unused tools, and cancel candidates.",
+      "outcome": "Spend audit at spend/{YYYY-MM-DD}-audit.md with annualized total and cancel candidates.",
+      "skill": "audit-saas-spend"
+    },
+    {
+      "category": "Contracts",
+      "title": "Pull key clauses from this contract",
+      "blurb": "Liability, termination, auto-renew, IP, SLA — extracted.",
+      "prompt": "Pull the {clauses} from this contract.",
+      "fullPrompt": "Extract clauses from this contract. Use the extract-contract-clauses skill. I'll provide the file or a link. Pull: liability cap, termination (for-cause + for-convenience), auto-renewal language + notice window, payment terms, IP ownership, data handling / DPA, SLA, exclusivity or non-compete. For each clause: quote the relevant text verbatim, then give a 1-line plain-language summary and a 1-line flag if anything is unusual or unfavorable. Save to contracts/{vendor-slug}-{YYYY-MM-DD}.md and add the vendor + renewal date to renewals/calendar.md.",
+      "description": "Parses a contract file, extracts standard clauses with verbatim quotes + plain-language summaries + flags on unfavorable terms.",
+      "outcome": "Clause extraction at contracts/{vendor-slug}-{YYYY-MM-DD}.md plus renewal calendar updated.",
+      "skill": "extract-contract-clauses"
+    },
+    {
+      "category": "Contracts",
+      "title": "Build my renewal calendar",
+      "blurb": "Every contract's renewal date, with lead-time flags.",
+      "prompt": "Build my renewal calendar — what's renewing in the next 90 days?",
+      "fullPrompt": "Build the renewal calendar. Use the track-renewals skill. Scan every file in contracts/ and any contract-flavored attachments I point you to (PDFs in a folder via connected drive). Extract renewal dates, notice windows, and auto-renew language. Produce a living renewals/calendar.md ordered by next renewal, with lead-time tier per entry (90 / 60 / 30 / 7 days). Also produce a 90-day digest at renewals/{YYYY-QN}-digest.md with: upcoming renewals, those where notice is already due to cancel, and the 2-3 I should negotiate before auto-renew triggers.",
+      "description": "Scans contracts/ and connected drives for contract PDFs, extracts renewal dates and notice windows, maintains a living calendar with lead-time flags.",
+      "outcome": "Living renewal calendar at renewals/calendar.md + quarterly digest.",
+      "skill": "track-renewals"
+    },
+    {
+      "category": "Suppliers",
+      "title": "Evaluate this supplier against our rubric",
+      "blurb": "Score 1–10, risk tier, strengths, concerns, recommendation.",
+      "prompt": "Evaluate {supplier} for {product / service} — is this a fit?",
+      "fullPrompt": "Evaluate this supplier. Use the evaluate-supplier skill. I'll provide the supplier name + product/service context. Gather: public profile, references if any in my inbox, compliance footprint (frameworks, incidents) via research, pricing posture if discoverable. Score against our rubric in `config/supplier-rubric.md` (or the default: fit, quality signals, reference quality, risk signals, friction-to-start). Produce: quality score 1-10, risk tier (green/yellow/red), strengths, concerns, specific questions for first call, recommendation. Save to suppliers/{supplier-slug}.md.",
+      "description": "Supplier due-diligence with rubric-based scoring, risk tier assignment, and first-call questions.",
+      "outcome": "Supplier evaluation at suppliers/{supplier-slug}.md with score, risk tier, and questions.",
+      "skill": "evaluate-supplier"
+    },
+    {
+      "category": "Suppliers",
+      "title": "Compliance due-diligence on a vendor",
+      "blurb": "Frameworks, CCO, public incidents, cited.",
+      "prompt": "Run compliance due-diligence on {vendor} before we sign.",
+      "fullPrompt": "Research this vendor's compliance footprint. Use the research-compliance skill. I'll provide the company name. Find: compliance frameworks held or claimed (SOC2, ISO 27001, HIPAA, GDPR, etc.), named Chief Compliance / Security Officer with LinkedIn link, public compliance incidents in the last 3 years (breaches, violations, regulatory actions), and any gaps between what they claim and what's independently verifiable. Cite every claim with a source URL. Save to compliance/{company-slug}.md.",
+      "description": "Public-source compliance research: frameworks held, named officers, recent incidents. Every claim cited.",
+      "outcome": "Compliance brief at compliance/{company-slug}.md — decision-ready.",
+      "skill": "research-compliance"
+    },
+    {
+      "category": "Outreach",
+      "title": "Draft a vendor outreach — save as draft, don't send",
+      "blurb": "Negotiation, cancel, or trial — written in your voice.",
+      "prompt": "Draft {a renewal-negotiation email / cancel email / trial request} to {vendor}. Don't send.",
+      "fullPrompt": "Draft this vendor outreach. Use the draft-vendor-outreach skill. I'll provide the vendor + purpose (negotiate renewal, cancel, request trial, reference request). Read the vendor's file in contracts/ if present (terms, renewal date, signers). Read `../head-of-operations/config/voice.md` for voice. Read `../head-of-operations/company-operating-context.md` for vendor posture. Draft the email with placeholders for anything I need to confirm (specific numbers, dates). Save the draft in my connected email provider as a draft (never send). Save a human-readable record at outreach/{vendor}-{topic}-{YYYY-MM-DD}.md.",
+      "description": "Draft renewal negotiations, cancel emails, or trial requests in your voice. Grounded in contract terms and vendor posture. Saved as drafts.",
+      "outcome": "Draft in your email provider (saved, never sent) + record at outreach/{vendor}-{topic}-{YYYY-MM-DD}.md.",
+      "skill": "draft-vendor-outreach"
+    }
+  ]
+}

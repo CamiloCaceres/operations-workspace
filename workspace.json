@@ -1,0 +1,5 @@
+{
+  "name": "Founder Operations Workspace",
+  "description": "Two AI ops hires for solo founders — a Head of Operations (Chief of Staff) that owns the shared operating-context doc, and a Vendor & Procurement Ops specialist for contracts, renewals, suppliers, compliance, SaaS spend, and vendor outreach. Chat-first, markdown-output, tool-agnostic via Composio. HR and finance are separate verticals.",
+  "agents": ["head-of-operations", "vendor-procurement-ops"]
+}
