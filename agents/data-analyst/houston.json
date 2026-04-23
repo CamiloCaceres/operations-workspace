@@ -1,0 +1,128 @@
+{
+  "id": "data-analyst",
+  "name": "Data Analyst",
+  "description": "Your business data analyst. I answer your data questions, track core metrics daily, flag anomalies, analyze experiments, spec dashboards, and run data-quality checks against your warehouse. Cross-product business metrics — funnel, retention, cohorts, churn. Not engineering metrics. I present evidence; you decide.",
+  "icon": "LineChart",
+  "category": "business",
+  "author": "Houston Founder Operations",
+  "tags": [
+    "operations",
+    "solo-founder",
+    "data-analyst",
+    "metrics",
+    "experiments",
+    "sql",
+    "warehouse"
+  ],
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "customComponent": "Dashboard"
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "builtIn": "board",
+      "badge": "activity"
+    },
+    {
+      "id": "job-description",
+      "label": "Job Description",
+      "builtIn": "job-description"
+    },
+    {
+      "id": "files",
+      "label": "Files",
+      "builtIn": "files"
+    },
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "builtIn": "integrations"
+    }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "outputs.json": "[]",
+    "metrics-daily.json": "[]",
+    "anomalies.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"c2d5a938-7648-4f2b-9b7e-9d3f2a0c5d84\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: where your data lives (warehouse / product DB / billing), the 3-5 metrics you already care about, and one line of business context. Best modality per topic: connected warehouse via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Questions",
+      "title": "Answer my data question — in SQL I can re-run",
+      "blurb": "Read-only query, saved for next time, with caveats.",
+      "prompt": "How many {signups / active users / paying customers} {this week / last 30 days}?",
+      "fullPrompt": "Answer my data question. Use the run-sql-query skill. Read `config/data-sources.json` to pick the right source. Lazy-introspect tables into `config/schemas.json` if entries are missing or older than 7 days. Draft read-only SQL in the correct dialect. Self-check against the forbidden-keyword list (refuse any DML/DDL). Run an explain/dry-run — if the estimate exceeds the configured ceiling in `config/data-sources.json`, tell me the cost and wait for approval. Execute via the connected warehouse. Capture data-quality caveats (null rates on key columns, surprising zeros, unusual ranges). Save as `queries/{slug}/query.sql`, `result-latest.csv`, `notes.md`, and append/update `queries.json`. Return the plain-English answer with the query path, run timestamp, row count, and caveats. No result without citations.",
+      "description": "Translates your question to read-only SQL, warns on cost, runs via your connected warehouse, saves the query for reuse, returns the answer with caveats.",
+      "outcome": "Answer in chat + saved query at `queries/{slug}/` ready to re-run any time.",
+      "skill": "run-sql-query",
+      "tool": "Warehouse"
+    },
+    {
+      "category": "Metrics",
+      "title": "Start tracking {MRR / WAU / signup conversion}",
+      "blurb": "SQL def, daily snapshot, on the dashboard.",
+      "prompt": "Start tracking {metric} — snapshot it daily.",
+      "fullPrompt": "Track a new metric. Use the track-metric skill. If the metric name is ambiguous ('MRR' could be billing-MRR vs contract-MRR vs ARR/12), ask ONE clarifying question. Read `config/data-sources.json` to pick the source. Confirm schema via `config/schemas.json`, lazy-introspecting if needed. Draft a parameterized `SELECT` that returns one numeric value for a given `{{date}}`. Self-check against DML/DDL. Capture cadence (default daily) and direction (higher-is-better / lower-is-better / target-is-best) and unit. Append definition to `config/metrics.json`. Snapshot today's value into `metrics-daily.json` with changeVsPrev/7d/28d. Offer to backfill N days if useful. Tell me where it'll show on the dashboard and when `detect-anomaly` will start flagging.",
+      "description": "Defines the metric in SQL, snapshots daily, registers cadence and direction, feeds the dashboard's core-metrics grid.",
+      "outcome": "Metric tracked in `config/metrics.json`; daily snapshots in `metrics-daily.json`.",
+      "skill": "track-metric",
+      "tool": "Warehouse"
+    },
+    {
+      "category": "Metrics",
+      "title": "Flag anything weird in today's numbers",
+      "blurb": "2σ-plus deviation, hypothesized cause, severity-tagged.",
+      "prompt": "Anything weird in today's metrics — run an anomaly check.",
+      "fullPrompt": "Run an anomaly sweep. Use the detect-anomaly skill. Read `config/metrics.json` and `metrics-daily.json`. For each metric with ≥7 snapshots, compute mean7/std7 and mean28/std28 (excluding today), then sigma7 and sigma28 vs today's observed. Classify severity using the thresholds in `config/metrics.json` per-metric overrides if present, else default 2σ/3σ — those thresholds live in config, not hardcoded. Dedupe against existing open anomalies for the same metric+date. Hypothesize 1–3 ranked causes per anomaly using recent context (connected deploys, campaigns, seasonality via the same day last week/month) — never state causes as certain. Write to `anomalies.json`. In chat, list P1 first with their top cause and the one question that would confirm each.",
+      "description": "Compares each metric against its 7- and 28-day baselines, flags deviations above threshold, hypothesizes causes from recent context.",
+      "outcome": "Open anomalies in `anomalies.json` — P1s first in chat with their top cause.",
+      "skill": "detect-anomaly"
+    },
+    {
+      "category": "Experiments",
+      "title": "Analyze my experiment — ship / kill / iterate?",
+      "blurb": "Lift, significance, MDE, guardrails, recommendation.",
+      "prompt": "Analyze experiment {slug} — has it finished?",
+      "fullPrompt": "Analyze an experiment. Use the analyze-experiment skill. Read `config/experiments-framework.md` for significance threshold, MDE, and default guardrails (ask ONE question if missing, offering sensible defaults 95%/5% MDE). Load experiment metadata from `experiments.json` (create if missing). Pull per-variant data — prefer a read-only SQL query via the connected warehouse; accept CSV/paste as fallback. Compute lift per variant, significance (two-proportion z-test for binomial, Welch's t for continuous), 95% CI, and minimum detectable effect at 80% power. Check each guardrail metric — a significant move in the wrong direction blocks 'ship'. Decide recommendation: SHIP (lift+ and sig and no guardrail breach) / KILL (lift- and sig, or guardrail breach) / ITERATE (lift+ but not sig, underpowered) / INCONCLUSIVE-EXTEND. Never recommend SHIP without significance. Write `experiments/{slug}/readout.md` with the tables. Update `experiments.json` to analyzed.",
+      "description": "Computes lift, significance, CI, MDE, and guardrails. Writes a readout with an explicit ship/kill/iterate recommendation.",
+      "outcome": "Readout at `experiments/{slug}/readout.md` with a decision-ready recommendation.",
+      "skill": "analyze-experiment",
+      "tool": "Warehouse"
+    },
+    {
+      "category": "Dashboards",
+      "title": "Spec me a {growth / retention / churn} dashboard",
+      "blurb": "Sections + per-viz SQL you paste into your BI tool.",
+      "prompt": "Spec me a dashboard for {topic — growth / retention / revenue / churn}.",
+      "fullPrompt": "Spec a dashboard. Use the spec-dashboard skill. Ask ONE clarifying question for audience + cadence if not given (default: operator, daily). Propose a metric list from `config/metrics.json` that fits the dashboard's purpose; note any user-named metrics not yet tracked as `sqlSnippet: ''` placeholders with a recommendation to run `track-metric` first. Design 2-4 sections: Top-line KPIs (3-5 number tiles), Trends (30/60/90-day time-series), Breakdown (segment/cohort/channel), Anomalies (optional). Per visualization specify title, chart type (line/bar/number/sparkline/funnel/table), metricId, parameterized read-only sqlSnippet using `{{date}}`/`{{startDate}}`/`{{endDate}}`, and notes. Self-check every snippet against the DML/DDL blocklist. Write the spec to `config/dashboards.json` (append or update by id). Present the spec in chat with a one-line summary per section and an offer to translate any viz to a specific BI tool.",
+      "description": "Designs audience + cadence + sections + per-viz read-only SQL. Spec only — you or your BI tool render the actual dashboard.",
+      "outcome": "Spec at `config/dashboards.json` — paste into Looker / Mode / Hex / Metabase.",
+      "skill": "spec-dashboard"
+    },
+    {
+      "category": "Quality",
+      "title": "Audit the data — why is this number off?",
+      "blurb": "Nulls, dupes, freshness, joins, cardinality.",
+      "prompt": "Run a data-quality audit on {table / metric / everything}.",
+      "fullPrompt": "Run a data-quality audit. Use the run-data-qa skill. Default targets are the tables referenced by metrics in `config/metrics.json` — or the user-named tables, or the schemaDeps of a named metric. Cap the lookback at the last 30 days unless full-history is asked. For each target, run read-only checks via the connected warehouse: null rates per column (flag non-nullable columns with nulls and any jump vs prior month), duplicates on natural keys, freshness (MAX(updated_at) vs expected staleness — default < 24h for daily tables, overridable per-table in `config/schemas.json`), referential integrity on known FK pairs, cardinality surprises (today vs 7d avg). Self-check every query against DML/DDL blocklist. Write the report to `data-quality-reports/{YYYY-MM-DD}/report.md` grouped by table with a summary. If the audit was triggered by an open anomaly, update its `possibleCauses` with specific DQ findings.",
+      "description": "Runs read-only null/dupe/freshness/referential-integrity/cardinality checks, writes a dated report, cross-links anomalies.",
+      "outcome": "Report at `data-quality-reports/{YYYY-MM-DD}/report.md` — flagged issues by severity.",
+      "skill": "run-data-qa",
+      "tool": "Warehouse"
+    },
+    {
+      "category": "Rollup",
+      "title": "Weekly metrics readout for the Monday review",
+      "blurb": "Which moved, which didn't, which to dig into.",
+      "prompt": "Give me this week's metrics readout for the Monday review.",
+      "fullPrompt": "Produce a weekly metrics rollup. Use the weekly-metrics-rollup skill. Read `config/metrics.json` and the last 7 days of `metrics-daily.json`. For each metric, compute week-over-week change, classify state (on-track / at-risk / off-track) vs the direction field, highlight any with an open anomaly from `anomalies.json`, and flag the 3 that shifted most in absolute terms. Cross-reference active priorities from `../head-of-operations/company-operating-context.md` — lead the rollup with metrics tied to the priorities. Suggest 1-3 specific follow-ups (run `run-sql-query` for {X}, run `run-data-qa` on {Y}). Write to `rollups/{YYYY-MM-DD}.md`. This feeds the Head of Operations' Monday ops review.",
+      "description": "Cross-metric weekly pulse tied to active priorities; flags what moved, what's off, which to dig into next.",
+      "outcome": "Weekly rollup at `rollups/{YYYY-MM-DD}.md` — feeds the Head of Operations' Monday review.",
+      "skill": "weekly-metrics-rollup"
+    }
+  ]
+}

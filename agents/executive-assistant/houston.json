@@ -1,0 +1,128 @@
+{
+  "id": "executive-assistant",
+  "name": "Executive Assistant",
+  "description": "Your tactical logistics hire. I guard your calendar, build deep pre-meeting briefs, track the commitments you make, draft follow-ups, and assemble trip packs. The Head of Operations handles 'what matters'; I handle 'where and when.' I never send, book, or confirm without your explicit approval.",
+  "icon": "CalendarCheck",
+  "category": "business",
+  "author": "Houston Founder Operations",
+  "tags": [
+    "operations",
+    "solo-founder",
+    "executive-assistant",
+    "calendar",
+    "meeting-prep",
+    "travel",
+    "scheduling"
+  ],
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "customComponent": "Dashboard"
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "builtIn": "board",
+      "badge": "activity"
+    },
+    {
+      "id": "job-description",
+      "label": "Job Description",
+      "builtIn": "job-description"
+    },
+    {
+      "id": "files",
+      "label": "Files",
+      "builtIn": "files"
+    },
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "builtIn": "integrations"
+    }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "outputs.json": "[]",
+    "followups.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"b1c4a928-6537-4f1a-9a6d-8c2e1f9a4b73\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your schedule preferences (focus blocks, meeting days, timezone), your VIPs (who never waits), and your travel defaults (airline, seat, hotel). Best modality per topic: connected calendar via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Calendar",
+      "title": "Scan my week — find the conflicts before I do",
+      "blurb": "Overbooks, missing buffers, focus clashes, no-prep meetings.",
+      "prompt": "Scan my next 7 days and flag every conflict.",
+      "fullPrompt": "Scan my calendar for the next 7 days. Use the triage-calendar skill. Read my connected calendar via Composio. Cross-reference against `config/schedule-preferences.json` and my VIPs. Flag: (1) overbooks — two events overlapping, (2) missing buffers — back-to-back with less than my configured minimum, (3) focus-block clashes — meetings landing inside my declared deep-work windows, (4) unprotected VIP slots — VIP meetings that are sandwiched or lack prep buffer, (5) meetings in the next 24h with no prep brief yet. Write to `calendar-scans/{YYYY-MM-DD}.md` and upsert `calendar-conflicts.json`. End by proposing the 2 specific rebalances that buy me the most focus back.",
+      "description": "Reads your connected calendar, cross-references your preferences and VIPs, flags overbooks, missing buffers, focus clashes, and meetings without prep.",
+      "outcome": "Calendar scan at `calendar-scans/{YYYY-MM-DD}.md` — each conflict with a specific fix.",
+      "skill": "triage-calendar",
+      "tool": "Calendar"
+    },
+    {
+      "category": "Meetings",
+      "title": "Build me a deep brief for my meeting with {name}",
+      "blurb": "Bio, prior threads, company news, suggested agenda.",
+      "prompt": "Build me a deep brief for my meeting with {name}.",
+      "fullPrompt": "Build a deep pre-meeting briefing. Use the prep-meeting-briefing skill. Resolve the meeting on my calendar. For each external attendee: pull public profile and recent public activity (last 30d) via web-search/research, pull the last 5 email threads we've exchanged via my connected inbox, check my `meetings/` folder for prior briefs with this person, and pull 3 most recent public social posts if a social source is connected. Synthesize into sections: Who they are (2-sentence bio + role + relationship), What they likely want (best guess from history), What I said last time (quoted from prior notes/email), 3 talking points I should lead with (anchored in the operating context priorities), The one thing NOT to forget, and Recent company news (5 links, 1-line summaries). Save to `meetings/{slug}-{YYYY-MM-DD}-brief.md`.",
+      "description": "Full-attendee intel — bio, prior threads, recent activity, shared history, suggested agenda. Deeper than the Head of Operations' meeting prep.",
+      "outcome": "Briefing at `meetings/{slug}-{YYYY-MM-DD}-brief.md` — read it in the 10 min before the call.",
+      "skill": "prep-meeting-briefing",
+      "tool": "Calendar + Research"
+    },
+    {
+      "category": "Meetings",
+      "title": "Book a meeting with {name} — respect my focus blocks",
+      "blurb": "3 time options + a draft message + booked on your ok.",
+      "prompt": "Book a meeting with {name} — 30 minutes, next week.",
+      "fullPrompt": "Find time with {name}. Use the schedule-meeting skill. Read my schedule preferences from `config/schedule-preferences.json` — focus blocks, working hours, max meetings per day, min buffers, blackout periods, timezone. Fetch free/busy for the next 10 business days via my connected calendar. Compute candidates that sit inside working hours, do NOT overlap focus blocks, respect min buffers on both sides, keep daily meeting count under the cap, and avoid blackout periods. Pick 3 options spread across days — prefer mid-morning (10-11:30) or early afternoon (2-4); avoid Monday AM and Friday PM unless nothing else fits. Draft the counterparty message in my voice (read `config/voice.md`). Save to `scheduling/{slug}/proposal.md`. Present to me — never book without explicit 'book it'.",
+      "description": "Computes 3 times that honor your focus blocks and buffers, drafts the counterparty message in your voice, books only after you say book it.",
+      "outcome": "Proposal at `scheduling/{slug}/proposal.md` — 3 times + draft message, waiting on your ok.",
+      "skill": "schedule-meeting",
+      "tool": "Calendar"
+    },
+    {
+      "category": "Follow-ups",
+      "title": "Track every promise I make — and remind me when they're due",
+      "blurb": "'I'll send Tuesday' becomes a tracked commitment.",
+      "prompt": "Track this follow-up: I told {name} I'd {do X} by {date}.",
+      "fullPrompt": "Track this commitment. Use the draft-followup skill in track mode. Parse my message for promiseTo, description, promisedAt, dueAt (resolve relative dates like 'Tuesday' against my timezone). If I pasted an outbound email, extract the commitment text from the body. Append a `Followup` row to `followups.json` with status 'open'. Dedupe against existing open rows with the same threadId + description — update dueAt rather than creating a duplicate. Tell me when I'll see it surface next (on the due date, via daily-briefing).",
+      "description": "Extracts the commitment + due date from an outbound or your instruction, appends to followups.json, surfaces the reminder on the due date.",
+      "outcome": "Tracked in `followups.json`. Surfaces in the daily briefing the morning it's due.",
+      "skill": "draft-followup"
+    },
+    {
+      "category": "Follow-ups",
+      "title": "Handle today's due follow-ups — draft the fulfillment or bump",
+      "blurb": "Either deliver the thing or honestly push the date.",
+      "prompt": "Handle my due follow-ups for today — draft the replies.",
+      "fullPrompt": "Handle follow-ups due today or overdue. Use the draft-followup skill in handle mode. Read `followups.json` filtering status 'open' or 'snoozed' with dueAt on or before today. For each: fetch latest thread state via my connected inbox so the draft reflects any replies since the commitment. Decide: (a) commitment ready to fulfill — draft a message that delivers it and references the prior promise in 1 line, or (b) commitment not ready — draft an honest bump with a new concrete date (ask me for the new date if not specified), without over-apologizing. Draft in my voice (`config/voice.md`). Save per-followup drafts at `followups/{id}/draft.md`. Update `followups.json` with `lastRemindedAt` and `completionDraftPath`. Present all drafts — I'll pick send/tweak/snooze per item. Never send.",
+      "description": "Reads today's due follow-ups, fetches latest thread state, drafts either the fulfillment or an honest bump. Saves drafts; never sends.",
+      "outcome": "Drafts at `followups/{id}/draft.md` — waiting on send/tweak/snooze per item.",
+      "skill": "draft-followup",
+      "tool": "Inbox"
+    },
+    {
+      "category": "Travel",
+      "title": "Assemble my trip pack for {destination}",
+      "blurb": "Itinerary search, meetings, destination-adapted packing.",
+      "prompt": "I'm going to {destination} from {date} to {date} — assemble my trip pack.",
+      "fullPrompt": "Build the trip pack. Use the coordinate-travel skill. Read `config/travel-prefs.json` (airline, seat, hotel chain, dietary, accessibility) — ask one targeted question if missing and write the answer. Read `config/schedule-preferences.json` for timezone and conflicts over the trip window. Discover connected travel providers via `composio search travel` (flight + hotel search) — note which categories are available; if none, proceed with search criteria only and note I'll book manually. Generate trip id `{YYYY-MM-DD}-{dest-slug}`. Write three files under `travel/{trip-id}/`: `trip.md` (purpose, dates, destinations, key meetings with prep status, open questions), `itinerary.md` (flight + hotel search criteria or candidate options, ground transport, pending bookings checklist), `packing.md` (destination-weather-adapted, trip-type-adapted — formal customer visit vs conference vs offsite — with sections Essentials / Work / Clothing / Health / Destination-specific). End by asking whether to block my calendar for the trip.",
+      "description": "Reads travel prefs + schedule, builds trip.md + itinerary.md + destination-adapted packing.md. Books nothing — search criteria only unless you explicitly approve.",
+      "outcome": "Trip pack under `travel/{trip-id}/` — trip, itinerary, packing.",
+      "skill": "coordinate-travel",
+      "tool": "Travel"
+    },
+    {
+      "category": "Daily",
+      "title": "My logistics brief for today",
+      "blurb": "Today's meetings, prep gaps, due follow-ups, conflicts.",
+      "prompt": "Give me today's logistics brief.",
+      "fullPrompt": "Give me today's logistics brief. Use the daily-briefing skill. This is the logistics cut — the Head of Operations handles the strategic brief. Aggregate: (1) today's meetings (from my connected calendar) with prep status per meeting — point at `meetings/{slug}-{YYYY-MM-DD}-brief.md` if it exists, (2) follow-ups from `followups.json` due today or overdue, (3) open calendar conflicts from my last scan in `calendar-conflicts.json`, (4) scheduling proposals awaiting counterparty response under `scheduling/`. Rank by time-sensitivity: meetings in the next 2h > overdue follow-ups > meetings later today with no prep > due follow-ups > calendar conflicts > pending scheduling. Save to `briefings/{YYYY-MM-DD}.md`. In chat: the top line only plus the path.",
+      "description": "Aggregates today's meetings, prep gaps, due follow-ups, and calendar conflicts into a ranked logistics plan.",
+      "outcome": "Logistics brief at `briefings/{YYYY-MM-DD}.md` — ranked actions for the day.",
+      "skill": "daily-briefing"
+    }
+  ]
+}

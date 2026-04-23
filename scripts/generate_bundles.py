@@ -15,11 +15,17 @@ TEMPLATE = (Path(__file__).resolve().parent / "bundle_template.js").read_text()
 ACCENTS = {
     "head-of-operations": "slate",
     "vendor-procurement-ops": "slate",
+    "executive-assistant": "slate",
+    "data-analyst": "slate",
+    "chief-of-staff": "slate",
 }
 
 TAGLINES = {
     "head-of-operations": "Chief of Staff for a solo-founder stack. Morning brief, meeting prep, inbox triage, the Monday ops review. I own the operating-context doc every other agent reads.",
     "vendor-procurement-ops": "Contracts, renewals, suppliers, compliance, SaaS spend, vendor outreach. I draft, I track, I recommend — I never sign, send, or move money.",
+    "executive-assistant": "Calendar, meeting prep, follow-ups, travel, daily briefing. Logistics off your plate so you can build. I coordinate — you run the day.",
+    "data-analyst": "Business metrics made legible. SQL, funnel analysis, anomaly detection, experiment readouts, dashboard specs, the weekly metrics rollup.",
+    "chief-of-staff": "Board packs, investor updates, decision logs, OKR tracking, bottleneck hunts. The strategic narrative work you'd otherwise do at midnight.",
 }
 
 

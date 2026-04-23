@@ -1,0 +1,105 @@
+{
+  "id": "chief-of-staff",
+  "name": "Chief of Staff",
+  "description": "Traditionally a Series-A+ hire — but the work starts day one. I prep board packs, draft investor updates in your voice, log the decisions you're making, hunt bottlenecks, and track OKR state. I draft; you decide. I never speak for you externally without explicit approval.",
+  "icon": "Briefcase",
+  "category": "business",
+  "author": "Houston Founder Operations",
+  "tags": [
+    "operations",
+    "solo-founder",
+    "chief-of-staff",
+    "board",
+    "investor-update",
+    "okr",
+    "decisions"
+  ],
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "customComponent": "Dashboard"
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "builtIn": "board",
+      "badge": "activity"
+    },
+    {
+      "id": "job-description",
+      "label": "Job Description",
+      "builtIn": "job-description"
+    },
+    {
+      "id": "files",
+      "label": "Files",
+      "builtIn": "files"
+    },
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "builtIn": "integrations"
+    }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "outputs.json": "[]",
+    "decisions.json": "[]",
+    "bottlenecks.json": "[]",
+    "okr-history.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"d3e6ba49-8759-4f3c-ac8f-ae4f3b1d6e95\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your investor cadence (monthly or quarterly, next due), your current OKR state (if any), and your decision-rights shape (who decides what — critical even for solo founders with co-founders or advisors). Best modality per topic: connected wiki / OKR tool via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Board",
+      "title": "Prep the Q{N} board pack — TL;DR through asks",
+      "blurb": "8 sections assembled; TBDs listed, none invented.",
+      "prompt": "Prep the Q{N} {YYYY} board pack.",
+      "fullPrompt": "Prep a board pack. Use the prep-board-pack skill. Resolve the target quarter from my message or `config/investor-cadence.json` → board.nextAt. Use yyyy-qq slug (e.g. 2026-Q2). Read strategic priorities from the operating context. Read the latest OKR state from `okr-history.json` — run `track-okr` first if the latest snapshot is older than 10 days. Gather wins and challenges from any available status artifacts (my `decisions/` with recent `decided` entries; any rollups from connected wikis via Composio). Pull metrics — prefer handing off to the Data Analyst agent (its `run-sql-query` or `weekly-metrics-rollup`) rather than re-computing; cite the query. If no Data Analyst is available, ask me to paste the numbers and mark the section `{SOURCE: pasted}`. Draft the pack at `board-packs/{yyyy-qq}/board-pack.md` with the 8 standard sections (TL;DR, business update, metrics, OKRs, wins, challenges, asks, appendix). Flag every `{TBD}` in chat with what's needed and the best modality. Never invent a metric or quote.",
+      "description": "Assembles TL;DR, business update, metrics, OKRs, wins, challenges, asks, and appendix. Flags TBDs; invents nothing.",
+      "outcome": "Board pack at `board-packs/{yyyy-qq}/board-pack.md` — you fill TBDs, I assembled the structure.",
+      "skill": "prep-board-pack"
+    },
+    {
+      "category": "Investors",
+      "title": "Draft the {monthly / quarterly} investor update in my voice",
+      "blurb": "TL;DR, metrics, wins, challenges, learnings, asks.",
+      "prompt": "Draft the {monthly / quarterly} investor update.",
+      "fullPrompt": "Draft the investor update. Use the draft-investor-update skill. Read `config/investor-cadence.json` (ask one question if missing: monthly or quarterly and next due, best via connected calendar). Read `config/voice.md` or the voice section of the operating context — if voice is thin, ask me to connect my inbox via Composio for a 20-30 sent-message sample, or paste a prior update as fallback. Determine the period (last full month / quarter). Gather: OKR movement this period (from `okr-history.json`), decisions landed (from `decisions.json` with status decided this period), metrics — hand off to the Data Analyst if available, otherwise ask me to paste. Draft in my voice at `investor-updates/{yyyy-qq}/update.md` with sections: TL;DR (2-3 sentences), Metrics (3-6 top-line, period-over-period), Wins (3-5 bullets), Challenges (2-3 honest bullets with mitigation if possible), What I'm learning (1-2 paragraphs in my voice — investors value this most), Asks (specific intros / hiring help / feedback). Never invent a customer name or metric — mark `{TBD}`. End with 'I will NOT send this — review and send from your own inbox.'",
+      "description": "Pulls OKR movement, decisions landed, and metrics (via Data Analyst handoff) into a voice-matched draft. Invents nothing. Never sends.",
+      "outcome": "Draft at `investor-updates/{yyyy-qq}/update.md` — review and send from your own inbox.",
+      "skill": "draft-investor-update"
+    },
+    {
+      "category": "Decisions",
+      "title": "Log a decision — so you can explain it later",
+      "blurb": "ADR-style: context, alternatives, trade-offs, rationale.",
+      "prompt": "Log the decision: we decided {X} because {Y}.",
+      "fullPrompt": "Log a decision. Use the log-decision skill. Extract the decision topic from my message; propose a kebab-case slug. Read `config/decision-framework.md` (ask ONE question if missing: who decides what — pricing / product / hiring / structural bets — best via a RACI doc or decision-rights page from a connected wiki). Decide status: `pending` if the CEO is the decider and hasn't yet decided, `decided` if the CEO declared it or the owner decided. Check `decisions.json` for duplicates — update in place rather than creating. Write the ADR at `decisions/{slug}/decision.md` with: Status + decidedBy + decidedAt, Linked initiatives, Context (what prompted + what's at stake), Alternatives considered (2-4 with trade-offs), Decision (chosen path), Rationale (why over alternatives), Consequences (good / hard / unknowns), Open questions. If the decision touches performance / comp / exits / legal, flag me privately in chat instead of landing specifics in the index — generalize the summary in `decisions.json`.",
+      "description": "ADR-style record with alternatives, trade-offs, rationale, consequences. Sensitive matters are routed privately, not indexed.",
+      "outcome": "Decision at `decisions/{slug}/decision.md` — searchable and explainable six months later.",
+      "skill": "log-decision"
+    },
+    {
+      "category": "Decisions",
+      "title": "What's stuck? Find the bottleneck.",
+      "blurb": "Recurring blocker, hypothesis, proposed unblock owner.",
+      "prompt": "What's stuck — where are we losing time?",
+      "fullPrompt": "Find the bottleneck. Use the identify-bottleneck skill. Gather evidence from the last 4 weeks: recent weekly rollups (from `../head-of-operations/reviews/` if present), any initiative tracking in `decisions.json` with status pending older than 14 days (decision-latency bottleneck), OKRs flipped off-track in `okr-history.json`, and any chat pattern I flagged. Cluster recurring themes — group evidence by shared owner, shared dependency, or shared OKR. Form a hypothesis per cluster (1-2 sentences, never as certain). Propose an owner to unblock — read the key-contacts / leadership section of the operating context; for cross-team bottlenecks, the owner is whoever owns the blocking resource. Quantify impact (OKRs blocked, initiatives stalled). Dedupe against open rows in `bottlenecks.json`. Write new bottlenecks to `bottlenecks.json`. If a hypothesis names a specific person's capacity, generalize to role-and-process language in the JSON and flag specifics to me in chat.",
+      "description": "Clusters evidence from rollups, OKRs, and pending decisions into a named bottleneck with a hypothesis and an unblock owner.",
+      "outcome": "Open bottlenecks in `bottlenecks.json` — each with a concrete next-step nudge candidate.",
+      "skill": "identify-bottleneck"
+    },
+    {
+      "category": "OKRs",
+      "title": "Refresh OKR state — what's on track, at risk, off track?",
+      "blurb": "Per KR: current value, state, likely cause from linked work.",
+      "prompt": "Refresh OKRs — what's off-track this week?",
+      "fullPrompt": "Refresh OKRs. Use the track-okr skill. Read `config/okrs.json` (ask ONE question if missing: point at your OKR tool connected via Composio, or paste/drop the OKR doc). For each objective, refresh each KR's current value — prefer a connected OKR tool via `composio search okr`, fallback to handing off the metric pull to the Data Analyst agent (cite the query), last fallback ask me to paste the numbers. Snapshot to `okr-history.json` with objectiveId, date, per-KR values, state. Classify each KR: on-track (current / target ≥ expected-for-this-point), at-risk (within 20 pp of expected but below), off-track (more than 20 pp below). Roll KR states up to objective state. Attach reason codes for at-risk / off-track KRs — scan `decisions.json` and the operating context's priorities for likely causes. Update `config/okrs.json` with fresh current values + state. Offer to draft a nudge comm if anything flipped off-track.",
+      "description": "Snapshots each KR, classifies on-track / at-risk / off-track, and surfaces likely causes from linked work.",
+      "outcome": "Fresh snapshot in `okr-history.json`; live state in `config/okrs.json`.",
+      "skill": "track-okr"
+    }
+  ]
+}
