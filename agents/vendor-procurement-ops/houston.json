@@ -31,6 +31,11 @@
       "builtIn": "job-description"
     },
     {
+      "id": "routines",
+      "label": "Routines",
+      "builtIn": "routines"
+    },
+    {
       "id": "files",
       "label": "Files",
       "builtIn": "files"
@@ -45,7 +50,8 @@
   "agentSeeds": {
     "outputs.json": "[]",
     "renewals/calendar.md": "# Renewal Calendar\n\nThis file is managed by the `track-renewals` skill. Contracts scanned: 0. Run `track-renewals` after loading contracts to populate.\n",
-    ".houston/activity.json": "[{\"id\":\"b7e1d429-8c3f-4a1d-9e0b-5f2c4d8e7a36\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: where your contracts live, your current vendor list, and your approval posture (signature authority + preferred terms). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+    ".houston/activity.json": "[{\"id\":\"b7e1d429-8c3f-4a1d-9e0b-5f2c4d8e7a36\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: where your contracts live, your current vendor list, and your approval posture (signature authority + preferred terms). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]",
+    ".houston/routines/routines.json": "[{\"id\":\"monthly-renewal-review\",\"name\":\"Monthly renewal review\",\"description\":\"First-of-month sweep for upcoming contract renewals and notice-window deadlines.\",\"prompt\":\"Run the monthly renewal review. Use the track-renewals skill.\\n\\nPreconditions: read `../head-of-operations/company-operating-context.md` (stop with a note if missing).\\n\\nRescan every file in `contracts/` and any contract-flavored attachments pointed to in `config/`. Extract renewal dates, notice windows, and auto-renew language. Refresh `renewals/calendar.md` as the living calendar.\\n\\nProduce a 90-day digest at `renewals/{YYYY-QN}-digest.md` (use the current quarter) with: upcoming renewals in the next 90 days, those where notice is already due in order to cancel or renegotiate, and the 2-3 contracts worth negotiating before auto-renew triggers. Append the digest to `outputs.json` (the digest is indexed; `renewals/calendar.md` is not).\\n\\nFirst-run rule: if `contracts/` is empty (no contracts have been loaded yet), say so and remain silent — there's nothing to review.\\n\\nOutput rule:\\n- If zero contracts renew in the next 90 days and no notice windows expire in the next 30 days, remain silent (the calendar was still refreshed).\\n- If any contract has a notice-window deadline in the next 30 days, or any auto-renew triggers in the next 90 days, surface: a one-line count, the top 3 that need attention with their lead-time tier (90 / 60 / 30 / 7), and the path to the digest. Offer to draft the renewal-negotiation or cancel outreach for the top one.\",\"schedule\":\"0 9 1 * *\",\"enabled\":true,\"suppress_when_silent\":true,\"created_at\":\"2026-04-23T00:00:00Z\",\"updated_at\":\"2026-04-23T00:00:00Z\"}]"
   },
   "useCases": [
     {

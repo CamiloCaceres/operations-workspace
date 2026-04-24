@@ -30,6 +30,11 @@
       "builtIn": "job-description"
     },
     {
+      "id": "routines",
+      "label": "Routines",
+      "builtIn": "routines"
+    },
+    {
       "id": "files",
       "label": "Files",
       "builtIn": "files"
@@ -43,7 +48,8 @@
   "defaultTab": "overview",
   "agentSeeds": {
     "outputs.json": "[]",
-    ".houston/activity.json": "[{\"id\":\"4a0e3612-9e1d-4f8c-a2b0-7d4c6e5f18a9\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your company (what + stage), your operating rhythm (how your week is shaped), and your voice (how you write). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+    ".houston/activity.json": "[{\"id\":\"4a0e3612-9e1d-4f8c-a2b0-7d4c6e5f18a9\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your company (what + stage), your operating rhythm (how your week is shaped), and your voice (how you write). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]",
+    ".houston/routines/routines.json": "[{\"id\":\"monday-ops-review\",\"name\":\"Monday ops review\",\"description\":\"Cross-agent Monday rollup: what shipped, what's stuck, what's next per agent.\",\"prompt\":\"Run the Monday ops review. Use the run-weekly-review skill.\\n\\nPreconditions: `company-operating-context.md` exists at this agent root. If it doesn't, say so and stop — the review has no priorities to cross-reference against.\\n\\nRead every agent's `outputs.json` in this workspace: `./outputs.json` (self), `../chief-of-staff/outputs.json`, `../data-analyst/outputs.json`, `../executive-assistant/outputs.json`, `../vendor-procurement-ops/outputs.json`. Each read handles missing gracefully — if a sibling agent isn't installed, note as 'not installed' and continue.\\n\\nAlso read `../vendor-procurement-ops/renewals/calendar.md` for the renewal calendar (if present) and `../data-analyst/rollups/` for the latest weekly metrics rollup (if present).\\n\\nSummarize: what shipped last week (new entries in each `outputs.json` over the last 7 days), what's in draft (status `draft`), any agent that's been quiet for 2+ weeks.\\n\\nCross-reference active priorities from `company-operating-context.md` and upcoming renewals within 30 days.\\n\\nEnd with 3 recommended next moves for the week, each addressed to a specific agent with a one-line handoff prompt the founder can paste verbatim.\\n\\nSave to `reviews/{YYYY-MM-DD}.md` and append to `outputs.json`.\\n\\nAlways surface the review — this is the flagship Monday artifact. Start your response with a one-line headline (for example '3 shipped, 2 drafts waiting, 1 renewal in 14 days') followed by the path to the full review.\",\"schedule\":\"0 9 * * 1\",\"enabled\":true,\"suppress_when_silent\":true,\"created_at\":\"2026-04-23T00:00:00Z\",\"updated_at\":\"2026-04-23T00:00:00Z\"}]"
   },
   "useCases": [
     {
